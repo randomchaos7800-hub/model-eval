@@ -1,0 +1,177 @@
+[
+  {
+    "id": "r1",
+    "category": "reasoning",
+    "prompt": "All mammals are warm-blooded. All dogs are mammals. Is a poodle warm-blooded? Answer yes or no and explain your reasoning in one sentence.",
+    "expected": "Yes. Poodles are dogs, dogs are mammals, and all mammals are warm-blooded — so poodles are warm-blooded.",
+    "rubric": "Score 5 if: answers yes, gives correct syllogistic reasoning. Score 3 if: correct answer, weak explanation. Score 1 if: wrong answer."
+  },
+  {
+    "id": "r2",
+    "category": "reasoning",
+    "prompt": "A bat and a ball cost $1.10 in total. The bat costs $1.00 more than the ball. How much does the ball cost? Show your work.",
+    "expected": "$0.05. If ball = x, bat = x + 1.00, total = 2x + 1.00 = 1.10, so x = 0.05.",
+    "rubric": "Score 5 if: correct answer ($0.05) with correct algebra. Score 2 if: answers $0.10 (common intuitive error). Score 1 if: no coherent working."
+  },
+  {
+    "id": "r3",
+    "category": "reasoning",
+    "prompt": "What comes next in this sequence: 2, 6, 12, 20, 30, ___? Explain the pattern.",
+    "expected": "42. The pattern is n*(n+1): 1*2=2, 2*3=6, 3*4=12, 4*5=20, 5*6=30, 6*7=42. Or equivalently, differences increase by 2 each time: +4, +6, +8, +10, +12.",
+    "rubric": "Score 5 if: correct answer (42) with correct pattern explanation. Score 3 if: correct answer, vague pattern. Score 1 if: wrong answer."
+  },
+  {
+    "id": "r4",
+    "category": "reasoning",
+    "prompt": "If it rains, the ground gets wet. The ground is wet. Does this mean it rained? Explain.",
+    "expected": "No, not necessarily. The ground being wet does not prove it rained — sprinklers, a spilled bucket, or dew could also cause wet ground. This is the logical fallacy of affirming the consequent.",
+    "rubric": "Score 5 if: correctly says no, explains alternative causes, ideally names the fallacy. Score 3 if: says no but explanation is thin. Score 1 if: says yes (commits the fallacy)."
+  },
+  {
+    "id": "r5",
+    "category": "reasoning",
+    "prompt": "A doctor gives you 3 pills and tells you to take one every half hour. How long will the pills last?",
+    "expected": "1 hour. You take the first pill immediately (t=0), the second at 30 minutes, and the third at 60 minutes.",
+    "rubric": "Score 5 if: answers 1 hour with correct reasoning. Score 2 if: answers 1.5 hours (common off-by-one error). Score 1 if: any other answer."
+  },
+  {
+    "id": "c1",
+    "category": "coding",
+    "prompt": "Write a Python function called `count_vowels(text)` that returns the count of vowels (a, e, i, o, u, case-insensitive) in a string. Include a docstring and show two example calls with their output in comments.",
+    "expected": "A working function that uses `text.lower()` and checks membership in 'aeiou', with correct docstring and two correct example outputs.",
+    "rubric": "Score 5 if: function is correct, handles case-insensitivity, has docstring, examples are correct. Score 3 if: function works but missing docstring or examples wrong. Score 1 if: function is broken."
+  },
+  {
+    "id": "c2",
+    "category": "coding",
+    "prompt": "This Python function is supposed to return the second largest unique number in a list, but it has a bug. Find the bug and fix it:\n\ndef second_largest(nums):\n    nums.sort()\n    return nums[-2]",
+    "expected": "Bug: fails on lists with duplicate maximum values (e.g. [5,5,3] returns 5 instead of 3). Fix: deduplicate first. Correct: `return sorted(set(nums))[-2]`",
+    "rubric": "Score 5 if: correctly identifies the duplicate-max bug and provides a working fix. Score 3 if: identifies the issue but fix is incomplete. Score 1 if: misses the bug or fix is wrong."
+  },
+  {
+    "id": "c3",
+    "category": "coding",
+    "prompt": "Write a Python function `is_palindrome(s)` that returns True if a string is a palindrome, ignoring spaces, punctuation, and case. It must return True for 'A man a plan a canal Panama' and False for 'hello'.",
+    "expected": "A function that strips non-alphanumeric characters, lowercases, and compares to its reverse. e.g. `cleaned = re.sub(r'[^a-z0-9]', '', s.lower()); return cleaned == cleaned[::-1]`",
+    "rubric": "Score 5 if: function passes both test cases and correctly handles all three normalizations (case, spaces, punctuation). Score 3 if: handles some but not all. Score 1 if: function is broken or fails the test cases."
+  },
+  {
+    "id": "c4",
+    "category": "coding",
+    "prompt": "Given this list:\ndata = [{\"name\": \"Alice\", \"score\": 85}, {\"name\": \"Bob\", \"score\": 92}, {\"name\": \"Carol\", \"score\": 78}]\n\nWrite a single Python expression (not a function) that returns the name of the person with the highest score.",
+    "expected": "max(data, key=lambda x: x[\"score\"])[\"name\"]  — returns 'Bob'",
+    "rubric": "Score 5 if: correct one-liner using max() with key. Score 3 if: correct but uses a loop or sorts instead. Score 1 if: wrong answer or broken expression."
+  },
+  {
+    "id": "c5",
+    "category": "coding",
+    "prompt": "What does this Python function do? Explain in plain English (no code), in 2-3 sentences:\n\ndef mystery(n):\n    if n <= 1:\n        return n\n    return mystery(n-1) + mystery(n-2)",
+    "expected": "Computes the nth Fibonacci number using recursion. Returns n itself for 0 or 1, and the sum of the two preceding Fibonacci numbers for larger values. It is correct but slow due to redundant recalculations.",
+    "rubric": "Score 5 if: correctly identifies Fibonacci, explains recursion clearly, possibly notes performance issue. Score 3 if: identifies Fibonacci but explanation is vague. Score 1 if: wrong identification."
+  },
+  {
+    "id": "i1",
+    "category": "instruction_following",
+    "prompt": "List exactly 5 programming languages. No more, no fewer. Use a numbered list. Do not include any explanation, commentary, or introduction — just the numbered list.",
+    "expected": "A numbered list with exactly 5 items, nothing else.",
+    "rubric": "Score 5 if: exactly 5 items in a numbered list, no other text. Score 3 if: correct count but includes commentary. Score 1 if: wrong count or wrong format."
+  },
+  {
+    "id": "i2",
+    "category": "instruction_following",
+    "prompt": "Respond with ONLY a valid JSON object with exactly these three fields: \"color\" (any color name), \"number\" (an integer between 1 and 10), \"animal\" (any animal name). No explanation, no markdown code fences, no other text — just the raw JSON.",
+    "expected": "A raw JSON object like {\"color\": \"blue\", \"number\": 7, \"animal\": \"fox\"} with no surrounding text.",
+    "rubric": "Score 5 if: valid JSON, exactly 3 correct fields, no other text. Score 3 if: valid JSON but wrapped in markdown or has extra text. Score 1 if: not valid JSON or wrong fields."
+  },
+  {
+    "id": "i3",
+    "category": "instruction_following",
+    "prompt": "Summarize the following passage in EXACTLY two sentences — not one, not three, exactly two:\n\n\"The Apollo 11 mission, launched July 16, 1969, was the first crewed lunar landing mission. Neil Armstrong and Buzz Aldrin landed on the Moon on July 20, 1969, while Michael Collins orbited above in the command module. Armstrong became the first human to walk on the lunar surface, famously saying 'That's one small step for man, one giant leap for mankind.' The mission returned safely to Earth on July 24, 1969.\"",
+    "expected": "Exactly two sentences summarizing the passage accurately.",
+    "rubric": "Score 5 if: exactly two complete sentences, accurate content. Score 3 if: two sentences but inaccurate or one very short. Score 1 if: not exactly two sentences."
+  },
+  {
+    "id": "i4",
+    "category": "instruction_following",
+    "prompt": "Describe what a dog does in a typical day. Write 2-3 sentences. You must NOT use any of these words: bark, wag, fetch, tail, paw.",
+    "expected": "2-3 sentences describing dog behavior without the five forbidden words.",
+    "rubric": "Score 5 if: 2-3 sentences, none of the five forbidden words appear (check carefully), natural description. Score 3 if: correct length but one forbidden word slips in. Score 1 if: uses multiple forbidden words or wrong length."
+  },
+  {
+    "id": "i5",
+    "category": "instruction_following",
+    "prompt": "Respond using ONLY this exact structure (replace the bracketed parts):\n\nDIFFICULTY: [easy/medium/hard]\nTIME: [estimated minutes as a number]\nSTEPS:\n1. [first step]\n2. [second step]\n3. [third step]\n\nTask: Make a cup of tea.",
+    "expected": "The exact format with DIFFICULTY, TIME, and STEPS headers, followed by 3 numbered steps about making tea.",
+    "rubric": "Score 5 if: exact format with all three headers, 3 numbered steps, nothing extra. Score 3 if: mostly correct but extra text or wrong step count. Score 1 if: ignores the format."
+  },
+  {
+    "id": "f1",
+    "category": "factuality",
+    "prompt": "True or false: The Great Wall of China is visible from space with the naked eye. Explain your answer.",
+    "expected": "False. This is a common myth. The wall is too narrow to be seen from space with the naked eye — it's approximately the width of a highway.",
+    "rubric": "Score 5 if: correctly says false and explains why (too narrow). Score 3 if: says false but explanation is weak. Score 1 if: says true (believes the myth)."
+  },
+  {
+    "id": "f2",
+    "category": "factuality",
+    "prompt": "What is 347 multiplied by 28? Show your working.",
+    "expected": "9716. Working: 347×28 = 347×20 + 347×8 = 6940 + 2776 = 9716.",
+    "rubric": "Score 5 if: correct answer (9716) with correct working. Score 3 if: correct answer but no working or minor working error. Score 1 if: wrong answer."
+  },
+  {
+    "id": "f3",
+    "category": "factuality",
+    "prompt": "What is the capital city of Australia?",
+    "expected": "Canberra. Not Sydney (common mistake) and not Melbourne.",
+    "rubric": "Score 5 if: answers Canberra. Score 1 if: answers Sydney, Melbourne, or any other city."
+  },
+  {
+    "id": "f4",
+    "category": "factuality",
+    "prompt": "Do humans only use 10% of their brain? Answer directly, then explain.",
+    "expected": "No, this is a myth. Brain imaging shows virtually all brain regions are active at various times. The 10% figure has no scientific basis.",
+    "rubric": "Score 5 if: correctly debunks the myth with a scientific explanation. Score 3 if: says no but explanation is thin. Score 1 if: claims the myth is true."
+  },
+  {
+    "id": "f5",
+    "category": "factuality",
+    "prompt": "In what year did the Berlin Wall fall?",
+    "expected": "1989. The Berlin Wall fell on November 9, 1989.",
+    "rubric": "Score 5 if: answers 1989, optionally with the date. Score 3 if: answers 1989 but wrong month/day. Score 1 if: wrong year."
+  },
+  {
+    "id": "a1",
+    "category": "agent_tasks",
+    "prompt": "Extract the following fields from this text and return ONLY a JSON object with keys: name, date, amount, company. No other text.\n\n\"Hi, I'm writing to confirm that John Martinez from Acme Corp has approved the invoice dated March 15, 2024 for $2,847.50. Please process at your earliest convenience.\"",
+    "expected": "{\"name\": \"John Martinez\", \"date\": \"March 15, 2024\", \"amount\": \"$2,847.50\", \"company\": \"Acme Corp\"}",
+    "rubric": "Score 5 if: valid JSON, all four fields correct, no extra text. Score 3 if: all fields correct but wrapped in markdown or extra text. Score 1 if: any field wrong or not JSON."
+  },
+  {
+    "id": "a2",
+    "category": "agent_tasks",
+    "prompt": "Classify each item into one of: Hardware, Software, Service, Other. Return ONLY a JSON array of objects with \"item\" and \"category\" keys.\n\nItems: iPhone 15, Microsoft Excel, AWS hosting, a USB cable, Google Maps app, laptop repair",
+    "expected": "[{\"item\": \"iPhone 15\", \"category\": \"Hardware\"}, {\"item\": \"Microsoft Excel\", \"category\": \"Software\"}, {\"item\": \"AWS hosting\", \"category\": \"Service\"}, {\"item\": \"a USB cable\", \"category\": \"Hardware\"}, {\"item\": \"Google Maps app\", \"category\": \"Software\"}, {\"item\": \"laptop repair\", \"category\": \"Service\"}]",
+    "rubric": "Score 5 if: valid JSON array, all 6 items present, all categories correct. Score 3 if: mostly correct but 1-2 items misclassified or format off. Score 1 if: wrong format or multiple wrong classifications."
+  },
+  {
+    "id": "a3",
+    "category": "agent_tasks",
+    "prompt": "Convert these raw notes into a 3-sentence professional status update for a manager. Be concise and professional.\n\n- deployment done tuesday\n- 2 bugs found after deploy\n- both bugs fixed wednesday morning\n- users seem happy no complaints\n- next up: performance testing",
+    "expected": "A polished 3-sentence summary covering: deployment completed, bugs found and resolved, next steps.",
+    "rubric": "Score 5 if: exactly 3 sentences, professional tone, covers all key points (deployment, bug fix, next steps). Score 3 if: good content but wrong sentence count or too casual. Score 1 if: not professional or omits key facts."
+  },
+  {
+    "id": "a4",
+    "category": "agent_tasks",
+    "prompt": "Break down the following task into exactly 5 ordered steps. Number them 1-5. Each step should be specific and actionable. No intro or outro text.\n\nTask: Set up a new Python project with a virtual environment, git repo, and a basic project structure.",
+    "expected": "Exactly 5 numbered, specific steps covering: create directory, init git, create venv, activate venv, create basic files (README, .gitignore, main.py or src/).",
+    "rubric": "Score 5 if: exactly 5 numbered steps, all specific and correct, no extra text. Score 3 if: correct content but wrong count or vague steps. Score 1 if: wrong count or steps are incorrect/incomplete."
+  },
+  {
+    "id": "a5",
+    "category": "agent_tasks",
+    "prompt": "You are an AI assistant in a production system. A user triggered a divide operation and the input you received was an empty string. What do you do? Respond as the system would respond to the end user.",
+    "expected": "A graceful, user-friendly error message that: does not crash or expose internals, explains the problem clearly, asks for a valid number.",
+    "rubric": "Score 5 if: graceful response, clear explanation, asks for valid input, no technical jargon or stack trace. Score 3 if: handles it but response is too technical. Score 1 if: simulates a crash, exposes internals, or refuses to engage."
+  }
+]
