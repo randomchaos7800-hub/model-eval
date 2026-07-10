@@ -69,6 +69,7 @@ def ask_model(client, model, prompt, max_tokens=512, retries=2):
             messages=[{"role": "user", "content": prompt}],
             temperature=0.3,
             max_tokens=max_tokens,
+            extra_body={"chat_template_kwargs": {"enable_thinking": False}},
         )
         msg = resp.choices[0].message
         content = (msg.content or "").strip()
