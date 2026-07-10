@@ -181,7 +181,7 @@ def write_report(results, model, output_dir, elapsed):
 
 def main():
     ap = argparse.ArgumentParser(description="Run curated quality probes with Claude judge")
-    ap.add_argument("--base-url",   default="http://localhost:8010/v1")
+    ap.add_argument("--base-url",   default=os.environ.get("PROXY_URL", "http://localhost:8010/v1"))
     ap.add_argument("--model",      default="local")
     ap.add_argument("--output-dir", default="./results")
     ap.add_argument("--judge-key",  default=None, help="Anthropic API key for judge")

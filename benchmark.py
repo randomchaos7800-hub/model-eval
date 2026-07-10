@@ -8,9 +8,10 @@ via the OpenAI-compatible endpoint at tower:8010.
 Usage:
     python benchmark.py [--base-url URL] [--model NAME] [--limit N] [--benchmarks mmlu,gsm8k,truthfulqa]
 
-Defaults: 50q per benchmark, all three benchmarks, proxy at localhost:8010
+Defaults: 50q per benchmark, all three benchmarks, proxy at $PROXY_URL (default localhost:8010)
 """
 
+import os
 import argparse
 import json
 import re
@@ -280,7 +281,7 @@ def write_report(results_list, model, output_dir, elapsed):
 
 def main():
     ap = argparse.ArgumentParser(description="Run standardized benchmarks against local proxy")
-    ap.add_argument("--base-url",   default="http://localhost:8010/v1")
+    ap.add_argument("--base-url",   default=os.environ.get("PROXY_URL", "http://localhost:8010/v1"))
     ap.add_argument("--model",      default="local")
     ap.add_argument("--limit",      type=int, default=50, help="Questions per benchmark (default 50)")
     ap.add_argument("--benchmarks", default="mmlu,gsm8k,truthfulqa")

@@ -15,7 +15,7 @@ set -euo pipefail
 cd "$(dirname "$0")"
 
 # ── defaults ──────────────────────────────────────────────────────────────────
-BASE_URL="http://localhost:8010/v1"
+BASE_URL="${PROXY_URL:-http://localhost:8010/v1}"
 MODEL="local"
 LIMIT=50
 RUN_PROBES=true
