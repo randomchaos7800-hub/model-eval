@@ -176,6 +176,7 @@ def main():
     ap.add_argument("--no-judge",   action="store_true", help="Skip Claude scoring, print responses only")
     ap.add_argument("--category",   default=None, help="Run only this category")
     ap.add_argument("--probes-file", default=None, help="Alternate probes JSON (e.g. domain-suite.json)")
+    ap.add_argument("--max-tokens", type=int, default=512, help="Answer token cap (domain-suite scenarios need ~1500)")
     args = ap.parse_args()
 
     output_dir = Path(args.output_dir)
@@ -222,7 +223,7 @@ def main():
     results = []
 
     for probe in probes:
-        response = ask_model(model_client, args.model, probe["prompt"])
+        response = ask_model(model_client, args.model, probe["prompt"], max_tokens=args.max_tokens)
 
         if args.no_judge:
             score, reason = 0, "[no judge]"
