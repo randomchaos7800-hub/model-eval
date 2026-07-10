@@ -175,12 +175,14 @@ def main():
     ap.add_argument("--judge-key",  default=None, help="Anthropic API key for judge")
     ap.add_argument("--no-judge",   action="store_true", help="Skip Claude scoring, print responses only")
     ap.add_argument("--category",   default=None, help="Run only this category")
+    ap.add_argument("--probes-file", default=None, help="Alternate probes JSON (e.g. domain-suite.json)")
     args = ap.parse_args()
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    probes = json.loads(PROBES_FILE.read_text())
+    probes_file = Path(args.probes_file) if args.probes_file else PROBES_FILE
+    probes = json.loads(probes_file.read_text())
     if args.category:
         probes = [p for p in probes if p["category"] == args.category]
         if not probes:
