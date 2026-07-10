@@ -60,10 +60,14 @@ it's invisible without domain expertise.
 
 ## Method notes (operational findings, themselves useful)
 
-- **local-proxy mangles long non-streaming responses.** The full suite through `:8010` returned
-  empty content for most items while direct `:8030` calls worked — needs a proxy fix before
-  any agent relies on long completions through it. (Genesis's 1600-token answers passed; the
-  failure appeared on Ornith-length responses.)
+- **CORRECTION 2026-07-10 — the "proxy mangles long responses" claim below was wrong.**
+  A controlled A/B (4 long completions each way, same params) showed the proxy passes
+  long non-streaming responses perfectly. The Ornith empties were the backend's
+  think-block swallow plus the AEON spurious-empty quirk — both occur on direct calls
+  too; the apparent proxy/direct difference was a max_tokens confound (3000 via proxy
+  vs 4000 direct). The proxy now logs a warning when a backend returns 200 with empty
+  content, so this class can't be misattributed again. Original (wrong) note kept for
+  the record: *"local-proxy mangles long non-streaming responses… needs a proxy fix."*
 - **Ornith's thinking burns the budget.** With the prod reasoning-parser config, several items
   returned content=None (everything eaten by an unclosed think block); log3 did this 7 times
   consecutively and only answered with `enable_thinking:false`. Two answers (rest1, rest4)
