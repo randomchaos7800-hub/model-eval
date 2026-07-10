@@ -61,7 +61,7 @@ def get_api_key(cli_key):
     return None
 
 
-def ask_model(client, model, prompt, max_tokens=512):
+def ask_model(client, model, prompt, max_tokens=512, retries=2):
     """Send prompt to local proxy."""
     try:
         resp = client.chat.completions.create(
@@ -70,7 +70,19 @@ def ask_model(client, model, prompt, max_tokens=512):
             temperature=0.3,
             max_tokens=max_tokens,
         )
-        return resp.choices[0].message.content.strip()
+        msg = resp.choices[0].message
+        content = (msg.content or "").strip()
+        if not content and retries > 0:
+            time.sleep(1)
+            return ask_model(client, model, prompt, max_tokens=max_tokens, retries=retries - 1)
+        if not content:
+            # Reasoning-parser backends return content=None when generation
+            # ends inside the think block; surface it explicitly.
+            reasoning = (getattr(msg, "reasoning_content", None) or "").strip()
+            if reasoning:
+                return f"[TRUNCATED IN THINKING — raise --max-tokens. Partial reasoning:]\n{reasoning}"
+            return "[ERROR: empty response]"
+        return content
     except Exception as e:
         return f"[ERROR: {e}]"
 
@@ -177,6 +189,7 @@ def main():
     ap.add_argument("--category",   default=None, help="Run only this category")
     ap.add_argument("--probes-file", default=None, help="Alternate probes JSON (e.g. domain-suite.json)")
     ap.add_argument("--max-tokens", type=int, default=512, help="Answer token cap (domain-suite scenarios need ~1500)")
+    ap.add_argument("--api-key", default="local", help="API key for the model endpoint")
     args = ap.parse_args()
 
     output_dir = Path(args.output_dir)
@@ -191,7 +204,7 @@ def main():
             sys.exit(1)
 
     # Set up clients
-    model_client = OpenAI(base_url=args.base_url, api_key="local")
+    model_client = OpenAI(base_url=args.base_url, api_key=args.api_key)
 
     judge_client = None
     if not args.no_judge:
