@@ -22,6 +22,10 @@ from pathlib import Path
 
 from openai import OpenAI
 
+from config import load_config, positive_int, http_url, with_retries
+
+CFG = load_config()
+
 # Five MMLU subjects covering different domains
 MMLU_SUBJECTS = [
     "high_school_mathematics",
@@ -41,23 +45,32 @@ REFERENCE = {
 
 
 def ask(client, prompt, model, max_tokens=16):
-    """Single chat completion, greedy decoding."""
-    try:
+    """Single chat completion, greedy decoding. Retries transient failures
+    with exponential backoff so one network hiccup doesn't abort a 500-query run."""
+    def _call():
         resp = client.chat.completions.create(
             model=model,
             messages=[{"role": "user", "content": prompt}],
             temperature=0,
             max_tokens=max_tokens,
+            timeout=CFG["request_timeout"],
         )
-        return resp.choices[0].message.content.strip()
+        return (resp.choices[0].message.content or "").strip()
+    try:
+        return with_retries(_call, max_retries=CFG["max_retries"])
     except Exception as e:
         return f"[ERROR: {e}]"
 
 
 def extract_letter(text, choices="ABCD"):
-    """Extract first valid option letter from model response."""
+    """Extract the model's chosen option letter.
+
+    A leading letter counts only when it stands alone (e.g. "C", "C.", "C)") —
+    not when it's the first char of a word like "Answer" (which would wrongly
+    read as choice A). Otherwise take the first standalone option letter.
+    """
     text = text.strip()
-    if text and text[0] in choices:
+    if len(text) >= 1 and text[0] in choices and (len(text) == 1 or not text[1].isalpha()):
         return text[0]
     m = re.search(rf'\b([{choices}])\b', text)
     return m.group(1) if m else None
@@ -281,17 +294,17 @@ def write_report(results_list, model, output_dir, elapsed):
 
 def main():
     ap = argparse.ArgumentParser(description="Run standardized benchmarks against local proxy")
-    ap.add_argument("--base-url",   default=os.environ.get("PROXY_URL", "http://localhost:8010/v1"))
-    ap.add_argument("--model",      default="local")
-    ap.add_argument("--limit",      type=int, default=50, help="Questions per benchmark (default 50)")
+    ap.add_argument("--base-url",   type=http_url, default=CFG["base_url"])
+    ap.add_argument("--model",      default=CFG["model"])
+    ap.add_argument("--limit",      type=positive_int, default=50, help="Questions per benchmark (default 50)")
     ap.add_argument("--benchmarks", default="mmlu,gsm8k,truthfulqa")
-    ap.add_argument("--output-dir", default="./results")
+    ap.add_argument("--output-dir", default=CFG["output_dir"])
     args = ap.parse_args()
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    client = OpenAI(base_url=args.base_url, api_key="local")
+    client = OpenAI(base_url=args.base_url, api_key=CFG["api_key"], timeout=CFG["request_timeout"])
     benchmarks = [b.strip() for b in args.benchmarks.split(",")]
 
     # Quick connectivity check

@@ -28,6 +28,10 @@ from pathlib import Path
 from openai import OpenAI
 import anthropic
 
+from config import load_config, positive_int, http_url, with_retries
+
+CFG = load_config()
+
 PROBES_FILE = Path(__file__).parent / "probes.json"
 JUDGE_MODEL = "claude-haiku-4-5-20251001"
 
@@ -42,16 +46,16 @@ CATEGORY_LABELS = {
 
 
 def get_api_key(cli_key):
-    """Resolve Anthropic API key: CLI arg → env var → vault."""
+    """Resolve Anthropic API key: CLI arg → env var → judge_key_command from config."""
     if cli_key:
         return cli_key
     env = os.environ.get("ANTHROPIC_API_KEY", "")
     if env:
         return env
     try:
+        cmd = os.path.expanduser(CFG["judge_key_command"])
         result = subprocess.run(
-            [os.path.expanduser("~/.vault/vault.sh"), "get", "anthropic_api_key"],
-            capture_output=True, text=True, timeout=10,
+            cmd.split(), capture_output=True, text=True, timeout=10,
         )
         key = result.stdout.strip()
         if key and key.startswith("sk-ant-"):
@@ -62,14 +66,19 @@ def get_api_key(cli_key):
 
 
 def ask_model(client, model, prompt, max_tokens=512, retries=2):
-    """Send prompt to local proxy."""
+    """Send prompt to local proxy. Transport errors retry with exponential
+    backoff (config max_retries); empty-content responses retry via `retries`."""
     try:
-        resp = client.chat.completions.create(
-            model=model,
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.3,
-            max_tokens=max_tokens,
-            extra_body={"chat_template_kwargs": {"enable_thinking": False}},
+        resp = with_retries(
+            lambda: client.chat.completions.create(
+                model=model,
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.3,
+                max_tokens=max_tokens,
+                timeout=CFG["probe_request_timeout"],
+                extra_body={"chat_template_kwargs": {"enable_thinking": False}},
+            ),
+            max_retries=CFG["max_retries"],
         )
         msg = resp.choices[0].message
         content = (msg.content or "").strip()
@@ -112,10 +121,14 @@ SCORE: [1-5]
 REASON: [one concise sentence explaining the score]"""
 
     try:
-        resp = judge_client.messages.create(
-            model=JUDGE_MODEL,
-            max_tokens=100,
-            messages=[{"role": "user", "content": judge_prompt}],
+        resp = with_retries(
+            lambda: judge_client.messages.create(
+                model=JUDGE_MODEL,
+                max_tokens=100,
+                messages=[{"role": "user", "content": judge_prompt}],
+                timeout=CFG["request_timeout"],
+            ),
+            max_retries=CFG["max_retries"],
         )
         text = resp.content[0].text.strip()
         m_score = re.search(r'SCORE:\s*([1-5])', text)
@@ -182,15 +195,15 @@ def write_report(results, model, output_dir, elapsed):
 
 def main():
     ap = argparse.ArgumentParser(description="Run curated quality probes with Claude judge")
-    ap.add_argument("--base-url",   default=os.environ.get("PROXY_URL", "http://localhost:8010/v1"))
-    ap.add_argument("--model",      default="local")
-    ap.add_argument("--output-dir", default="./results")
+    ap.add_argument("--base-url",   type=http_url, default=CFG["base_url"])
+    ap.add_argument("--model",      default=CFG["model"])
+    ap.add_argument("--output-dir", default=CFG["output_dir"])
     ap.add_argument("--judge-key",  default=None, help="Anthropic API key for judge")
     ap.add_argument("--no-judge",   action="store_true", help="Skip Claude scoring, print responses only")
     ap.add_argument("--category",   default=None, help="Run only this category")
     ap.add_argument("--probes-file", default=None, help="Alternate probes JSON (e.g. domain-suite.json)")
-    ap.add_argument("--max-tokens", type=int, default=512, help="Answer token cap (domain-suite scenarios need ~1500)")
-    ap.add_argument("--api-key", default="local", help="API key for the model endpoint")
+    ap.add_argument("--max-tokens", type=positive_int, default=512, help="Answer token cap (domain-suite scenarios need ~1500)")
+    ap.add_argument("--api-key", default=CFG["api_key"], help="API key for the model endpoint")
     args = ap.parse_args()
 
     output_dir = Path(args.output_dir)

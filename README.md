@@ -5,6 +5,46 @@ Evaluation harnesses and **full receipts** for the model quality claims publishe
 configs, campaign logs) live in the companion repo:
 [inference-research](https://github.com/randomchaos7800-hub/inference-research).
 
+## Quick start
+
+```bash
+pip install -r requirements.txt
+
+# domain expert suite against any OpenAI-compatible endpoint
+python probe.py --probes-file domain-suite.json --no-judge \
+  --base-url http://localhost:8010/v1 --model local
+
+# standardized benchmarks (downloads MMLU/GSM8K/TruthfulQA on first run)
+python benchmark.py --limit 50
+
+# tests
+pytest -q
+```
+
+Three tools:
+- **`probe.py`** — curated quality probes (25 general, or `--probes-file domain-suite.json`
+  for the 15 domain-expert scenarios), Claude-as-judge or `--no-judge` for hand scoring.
+- **`benchmark.py`** — standardized MMLU / GSM8K / TruthfulQA against the endpoint.
+- **`run_eval.sh`** — runs both.
+
+## Configuration
+
+No hardcoded endpoints. Resolution order, highest wins: **CLI args → env vars → `config.yaml`
+→ built-in defaults**. Copy [`config.yaml`](config.yaml) and edit, or just pass `--base-url` /
+set `PROXY_URL`. The judge API key is never stored in config — it resolves from `--judge-key`,
+`ANTHROPIC_API_KEY`, or the `judge_key_command` in config (default: a vault lookup).
+
+| Setting | CLI | env | config.yaml |
+|---|---|---|---|
+| endpoint | `--base-url` | `PROXY_URL` | `base_url` |
+| model | `--model` | — | `model` |
+| output dir | `--output-dir` | — | `output_dir` |
+| retries / timeouts | — | — | `max_retries`, `request_timeout` |
+
+**Robustness:** every model/judge call retries transient failures with exponential backoff
+(1s, 2s, 4s) and carries a request timeout, so one network hiccup can't abort a 500-query run
+or hang on a stuck backend. CLI inputs (`--limit`, `--base-url`) are validated up front.
+
 ## The domain expert suite
 
 15 operational scenarios — 5 each in logistics, traffic engineering, and restaurants —

@@ -1,0 +1,12 @@
+# Core — model calls and Claude-as-judge
+openai>=1.40
+anthropic>=0.34
+
+# Config file support (config.yaml); tools still run on defaults+env without it
+pyyaml>=6.0
+
+# Standardized benchmarks (benchmark.py) download MMLU/GSM8K/TruthfulQA on first run
+datasets>=2.19
+
+# Tests
+pytest>=8.0

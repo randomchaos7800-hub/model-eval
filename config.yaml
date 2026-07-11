@@ -1,0 +1,18 @@
+# model-eval configuration — copy/edit for your environment.
+# CLI arguments and the PROXY_URL env var override anything here.
+# No secrets in this file; the judge key resolves via judge_key_command/env/CLI.
+
+base_url: "http://localhost:8010/v1"
+model: "local"
+api_key: "local"
+output_dir: "./results"
+
+# seconds per request; probe long-form generations use probe_request_timeout
+request_timeout: 30
+probe_request_timeout: 180
+
+# transient-failure retries with exponential backoff (1s, 2s, 4s)
+max_retries: 3
+
+# command that prints the Anthropic judge key (used when --judge-key/env absent)
+judge_key_command: "~/.vault/vault.sh get anthropic_api_key"
