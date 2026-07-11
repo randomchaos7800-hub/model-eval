@@ -1,0 +1,36 @@
+{
+ "genesis": {
+  "log1": 4,
+  "log2": 1,
+  "log3": 4,
+  "log4": 2,
+  "log5": 4,
+  "traf1": 3,
+  "traf2": 5,
+  "traf3": 4,
+  "traf4": 5,
+  "traf5": 4,
+  "rest1": 3,
+  "rest2": 5,
+  "rest3": 5,
+  "rest4": 3,
+  "rest5": 4
+ },
+ "nvidia": {
+  "log1": 3,
+  "log2": 2,
+  "log3": 5,
+  "log4": 4,
+  "log5": 4,
+  "traf1": 3,
+  "traf2": 4,
+  "traf3": 4,
+  "traf4": 3,
+  "traf5": 4,
+  "rest1": 4,
+  "rest2": 5,
+  "rest3": 5,
+  "rest4": 5,
+  "rest5": 4
+ }
+}
