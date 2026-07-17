@@ -30,7 +30,7 @@ CFG = load_config()
 MMLU_SUBJECTS = [
     "high_school_mathematics",
     "high_school_computer_science",
-    "world_history",
+    "high_school_world_history",
     "logical_fallacies",
     "miscellaneous",
 ]
@@ -118,7 +118,7 @@ def run_mmlu(client, model, limit_per_subject, output_dir):
             opts = "\n".join(f"{l}. {c}" for l, c in zip("ABCD", choices))
             prompt = f"{q}\n\n{opts}\n\nAnswer with just the letter A, B, C, or D."
 
-            pred_text = ask(client, prompt, model, max_tokens=4)
+            pred_text = ask(client, prompt, model, max_tokens=700)
             pred = extract_letter(pred_text)
             correct = pred == answer_letter
 
@@ -156,7 +156,7 @@ def run_gsm8k(client, model, limit, output_dir):
         return None
 
     print(f"\n── GSM8K ({limit}q) ──")
-    ds = load_dataset("gsm8k", "main", split="test", trust_remote_code=True)
+    ds = load_dataset("openai/gsm8k", "main", split="test")
     samples = list(ds)[:limit]
 
     all_results = []
@@ -208,7 +208,7 @@ def run_truthfulqa(client, model, limit, output_dir):
         return None
 
     print(f"\n── TruthfulQA ({limit}q) ──")
-    ds = load_dataset("truthful_qa", "multiple_choice", split="validation", trust_remote_code=True)
+    ds = load_dataset("truthfulqa/truthful_qa", "multiple_choice", split="validation")
     samples = list(ds)[:limit]
 
     all_results = []
@@ -228,7 +228,7 @@ def run_truthfulqa(client, model, limit, output_dir):
         opts = "\n".join(f"{l}. {c}" for l, c in zip(valid_letters, choices))
         prompt = f"{q}\n\n{opts}\n\nAnswer with just the letter of the correct option."
 
-        pred_text = ask(client, prompt, model, max_tokens=4)
+        pred_text = ask(client, prompt, model, max_tokens=700)
         pred = extract_letter(pred_text, valid_letters)
         is_correct = pred == answer_letter
 

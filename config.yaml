@@ -8,7 +8,7 @@ api_key: "local"
 output_dir: "./results"
 
 # seconds per request; probe long-form generations use probe_request_timeout
-request_timeout: 30
+request_timeout: 180
 probe_request_timeout: 180
 
 # transient-failure retries with exponential backoff (1s, 2s, 4s)
